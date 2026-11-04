@@ -1,0 +1,228 @@
+{
+  "engine": "gemini",
+  "voice": "en-us-kira",
+  "clips": [
+    {
+      "step": 0,
+      "text": "Welcome to Intent, a programming language without text to edit. Think of the editor as an instrument: every key you press will change to the structure of the code, never a stray character, and Intent stores the sequence of operations.",
+      "file": "falling-body-voice/04294114c831.mp3",
+      "ms": 14640
+    },
+    {
+      "step": 9,
+      "text": "In this example, there's already a math module, with a two dimensional vector, Vec2.",
+      "file": "falling-body-voice/97868d22fa86.mp3",
+      "ms": 5680
+    },
+    {
+      "step": 11,
+      "text": "Let's build some physics on top of it, starting with a new module.",
+      "file": "falling-body-voice/7fa8d3ca89cb.mp3",
+      "ms": 4080
+    },
+    {
+      "step": 12,
+      "text": "Physics needs that vector, so it depends on math. Dependencies are explicit, so you can always see what a module relies on.",
+      "file": "falling-body-voice/e5f69e496983.mp3",
+      "ms": 8520
+    },
+    {
+      "step": 13,
+      "text": "A body has a position and a velocity, and both are Vec2s from math.",
+      "file": "falling-body-voice/630e19a00c3c.mp3",
+      "ms": 6160
+    },
+    {
+      "step": 14,
+      "text": "Fields go in one at a time, each one a name and a type. We'll call them pos and vel, for now.",
+      "file": "falling-body-voice/9c1f7ab08398.mp3",
+      "ms": 6320
+    },
+    {
+      "step": 16,
+      "text": "Now a function that acts on a body.",
+      "file": "falling-body-voice/76155ce81672.mp3",
+      "ms": 3000
+    },
+    {
+      "step": 17,
+      "text": "The body parameter is inout: the function works on the caller's own body, and changes it in place.",
+      "file": "falling-body-voice/47dbb0c2abc4.mp3",
+      "ms": 6720
+    },
+    {
+      "step": 18,
+      "text": "The time step, d t, is a plain float.",
+      "file": "falling-body-voice/95071c4ddaca.mp3",
+      "ms": 3480
+    },
+    {
+      "step": 19,
+      "text": "First, gravity pulls the vertical velocity down by nine point eight, times the time step.",
+      "file": "falling-body-voice/ba60fdd1a759.mp3",
+      "ms": 6080
+    },
+    {
+      "step": 20,
+      "text": "j steps into a node, l moves to the next, and a dot picks a field, as deep as the fields go. Every key fills exactly one slot, so the code is never half written, and there's no parser to fail.",
+      "file": "falling-body-voice/2a2f32385c03.mp3",
+      "ms": 13320
+    },
+    {
+      "step": 32,
+      "text": "Then the body moves: its position grows by its velocity, times the time step.",
+      "file": "falling-body-voice/95281906edeb.mp3",
+      "ms": 5600
+    },
+    {
+      "step": 35,
+      "text": "First in x, then in y. Same keys, same shape.",
+      "file": "falling-body-voice/65d5bf4034ac.mp3",
+      "ms": 4720
+    },
+    {
+      "step": 52,
+      "text": "Here's the twist: what you see isn't a text file. It's rendered from the program, in one canonical order, so it can look different for people with different tastes, and nobody argues about formatting again.",
+      "file": "falling-body-voice/606220969b4a.mp3",
+      "ms": 12200
+    },
+    {
+      "step": 66,
+      "text": "Happy with it? Commit the transaction.",
+      "file": "falling-body-voice/381a28f62df2.mp3",
+      "ms": 2640
+    },
+    {
+      "step": 67,
+      "text": "The history doesn't keep a diff of lines. It keeps the intents: what you did, and what it meant. That's what lets changes merge by default, as changes to the program, not as clashing lines of text. On the right, you can see each intent as it's recorded.",
+      "file": "falling-body-voice/db6fba09b48a.mp3",
+      "ms": 15840
+    },
+    {
+      "step": 68,
+      "text": "Lost in a big project? Slash jumps to anything by name: modules, groups, types, fields, functions.",
+      "file": "falling-body-voice/dea7253f84cf.mp3",
+      "ms": 7760
+    },
+    {
+      "step": 70,
+      "text": "The F key follows a reference straight to where it's declared. It's like jumping to a definition, but exact, because the editor knows what every name refers to.",
+      "file": "falling-body-voice/a7e1ca513e4c.mp3",
+      "ms": 10080
+    },
+    {
+      "step": 74,
+      "text": "Where does this y come from?",
+      "file": "falling-body-voice/84ea8734c0da.mp3",
+      "ms": 1960
+    },
+    {
+      "step": 75,
+      "text": "From Vec2, in math: the module we started with.",
+      "file": "falling-body-voice/364abbeeba1e.mp3",
+      "ms": 3320
+    },
+    {
+      "step": 76,
+      "text": "Back in physics, vel and pos are a bit terse.",
+      "file": "falling-body-voice/64d500b6c93d.mp3",
+      "ms": 3560
+    },
+    {
+      "step": 83,
+      "text": "Rename knows exactly which names refer to a field, so every one of them changes with it, and nothing else does. No search and replace.",
+      "file": "falling-body-voice/7b99ec230222.mp3",
+      "ms": 8400
+    },
+    {
+      "step": 87,
+      "text": "Time for a second module: the program itself.",
+      "file": "falling-body-voice/2e2bcf26a4d4.mp3",
+      "ms": 3400
+    },
+    {
+      "step": 88,
+      "text": "It uses physics, and the standard library's I O.",
+      "file": "falling-body-voice/771bb56ef54a.mp3",
+      "ms": 3560
+    },
+    {
+      "step": 90,
+      "text": "Every program starts at task main.",
+      "file": "falling-body-voice/4826feb50f12.mp3",
+      "ms": 2760
+    },
+    {
+      "step": 91,
+      "text": "Like main in C, it returns an exit code, zero for success.",
+      "file": "falling-body-voice/c2be00a86402.mp3",
+      "ms": 4520
+    },
+    {
+      "step": 92,
+      "text": "Tasks are how Intent does concurrency: they run as jobs, and Intent wires one job's outputs to the next one's inputs. Here, one is all we need.",
+      "file": "falling-body-voice/43bf2a93bf42.mp3",
+      "ms": 9880
+    },
+    {
+      "step": 93,
+      "text": "Our ball is a Body.",
+      "file": "falling-body-voice/069c9ec5f782.mp3",
+      "ms": 2440
+    },
+    {
+      "step": 94,
+      "text": "Throw it forward at three metres per second, and up at two and a half.",
+      "file": "falling-body-voice/2361bf6392af.mp3",
+      "ms": 5080
+    },
+    {
+      "step": 99,
+      "text": "Now let gravity act on it for half a second.",
+      "file": "falling-body-voice/a4a4ed57d2b2.mp3",
+      "ms": 2920
+    },
+    {
+      "step": 100,
+      "text": "applyGravity gets the ball itself, and changes it.",
+      "file": "falling-body-voice/81e5646ec875.mp3",
+      "ms": 3840
+    },
+    {
+      "step": 103,
+      "text": "So where is it now? Print its position, x and then y.",
+      "file": "falling-body-voice/ef3c71e887ab.mp3",
+      "ms": 4160
+    },
+    {
+      "step": 107,
+      "text": "j steps into the call, l to the argument, and a dot picks the field.",
+      "file": "falling-body-voice/5fc1100304b5.mp3",
+      "ms": 4920
+    },
+    {
+      "step": 121,
+      "text": "Then return zero.",
+      "file": "falling-body-voice/44b2186594b7.mp3",
+      "ms": 1880
+    },
+    {
+      "step": 123,
+      "text": "The moment of truth. b b builds it. Intent goes straight from the program's structure to MLIR, then LLVM, and out comes a native executable, with no text to parse along the way. And since LLVM is underneath, calling a C library is just declaring the C function. It runs: the ball is one and a half metres ahead, and one point two metres below where it started. Already on its way down.",
+      "file": "falling-body-voice/d11ee92d8ad7.mp3",
+      "ms": 27840
+    },
+    {
+      "step": 124,
+      "text": "Commit.",
+      "file": "falling-body-voice/42918bb22735.mp3",
+      "ms": 1080
+    },
+    {
+      "step": 125,
+      "text": "And that's it: a whole program, with every step recorded as what it means. The same intents work for people at the keyboard and for AI agents, which edit Intent through the very same steps you just saw.",
+      "file": "falling-body-voice/557fd5fb4e37.mp3",
+      "ms": 12800
+    }
+  ]
+}

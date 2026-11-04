@@ -1,0 +1,151 @@
+/* The stage is 1920×1080 and scales to the window; the recorder captures it at 1:1 */
+:root {
+  --ground: #0f1113;
+  --panel: #1e1f22;
+  --panel-edge: #2c2f33;
+  --text: #d7dade;
+  --muted: #8c949c;
+  --accent: #3ddc97;
+  --cursor: rgba(255, 255, 255, 0.11);
+  /* Token colours: the editor's dark palette (intentEditor.ts) */
+  --tok-keyword: #569cd6; --tok-type: #4ec9b0; --tok-module: #c586c0; --tok-function: #dcdcaa;
+  --tok-parameter: #9cdcfe; --tok-variable: #9cdcfe; --tok-field: #9cdcfe; --tok-constant: #569cd6;
+  --tok-std: #4fc1ff; --tok-number: #b5cea8; --tok-string: #ce9178; --tok-comment: #6a9955;
+  --tok-group: #c586c0;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--ground); color: var(--text); overflow: hidden; }
+body { font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+
+/* The stage is centred and scaled by player.js to fit above the controls */
+#viewport { position: fixed; inset: 0; overflow: hidden; }
+#stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; background: var(--ground); }
+
+#caption {
+  position: absolute; left: 80px; right: 80px; top: 40px; height: 64px;
+  font-size: 40px; font-weight: 600; letter-spacing: -0.01em; color: #f3f5f7;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+}
+
+#editor {
+  position: absolute; left: 80px; top: 136px; width: 1180px; height: 864px;
+  background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 14px; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+#titlebar {
+  flex: none; height: 46px; padding: 0 22px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--panel-edge); font: 500 17px 'IBM Plex Mono', monospace; color: var(--muted);
+}
+#code-view { position: relative; flex: 1; overflow: hidden; }
+#code {
+  position: absolute; left: 0; right: 0; top: 0; margin: 0; padding: 22px 30px;
+  font: 400 20px/31px 'IBM Plex Mono', monospace; color: var(--text); white-space: pre;
+}
+#code .line { display: block; min-height: 31px; }
+#code .cursor { background: var(--cursor); border-radius: 3px; }
+.tok-keyword { color: var(--tok-keyword); }
+.tok-type { color: var(--tok-type); }
+.tok-module { color: var(--tok-module); }
+.tok-function { color: var(--tok-function); }
+.tok-parameter { color: var(--tok-parameter); font-style: italic; }
+.tok-variable { color: var(--tok-variable); }
+.tok-field { color: var(--tok-field); }
+.tok-constant { color: var(--tok-constant); }
+.tok-std { color: var(--tok-std); }
+.tok-number { color: var(--tok-number); }
+.tok-string { color: var(--tok-string); }
+.tok-comment { color: var(--tok-comment); }
+.tok-group { color: var(--tok-group); font-weight: 600; }
+.tok-placeholder { opacity: 0.55; }
+
+#modeline {
+  flex: none; height: 40px; padding: 0 18px; display: flex; align-items: center; gap: 16px;
+  border-top: 1px solid var(--panel-edge); font: 500 16px 'IBM Plex Mono', monospace; color: var(--muted);
+}
+#mode { background: var(--accent); color: #0f1113; font-weight: 600; padding: 2px 10px; border-radius: 5px; }
+
+/* The editor's input box and picker, as VS Code shows them at the top */
+#prompt {
+  position: absolute; left: 50%; top: 64px; width: 640px; transform: translateX(-50%);
+  background: #252629; border: 1px solid #3a3e44; border-radius: 10px; padding: 14px 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+#prompt-label { font-size: 16px; color: var(--muted); margin-bottom: 10px; }
+#prompt-input {
+  font: 500 21px 'IBM Plex Mono', monospace; color: #f3f5f7; background: #1b1c1f;
+  border: 1px solid var(--accent); border-radius: 6px; padding: 8px 12px; min-height: 46px;
+}
+#prompt-option {
+  margin-top: 8px; padding: 8px 12px; border-radius: 6px; background: rgba(61, 220, 151, 0.16);
+  font: 500 20px 'IBM Plex Mono', monospace; color: #f3f5f7;
+}
+#caret { display: inline-block; width: 2px; height: 24px; background: #f3f5f7; vertical-align: -4px; margin-left: 1px; }
+
+#terminal {
+  position: absolute; left: 0; right: 0; bottom: 40px; height: 170px;
+  background: #141518; border-top: 1px solid var(--panel-edge); padding: 14px 30px;
+}
+.terminal-head { font: 500 14px 'IBM Plex Mono', monospace; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+#terminal-text { margin: 0; font: 500 22px/1.5 'IBM Plex Mono', monospace; color: #f3f5f7; }
+#terminal-text .prompt { color: var(--accent); }
+
+/* The right column: the keys pressed, then the intents recorded */
+#keys, #history {
+  position: absolute; left: 1300px; width: 540px;
+  background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 14px; padding: 22px 26px; overflow: hidden;
+}
+#keys { top: 136px; height: 240px; display: flex; flex-direction: column; }
+#history { top: 396px; height: 604px; }
+#keys h2, #history h2 { margin: 0 0 16px; font: 500 15px 'IBM Plex Mono', monospace; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+#intents { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; height: 524px; overflow: hidden; }
+#intents li { font: 400 18px/1.4 'IBM Plex Mono', monospace; color: var(--text); }
+#intents li.commit { color: #f3f5f7; font-weight: 600; padding-top: 6px; }
+#intents li.commit::before { content: '● '; color: var(--accent); }
+#intents li.done { color: var(--muted); padding-left: 22px; }
+#intents li.new { color: var(--accent); }
+
+#keycaps { flex: 1; display: flex; flex-wrap: wrap; align-content: center; align-items: center; gap: 14px 10px; }
+.combo { display: inline-flex; gap: 6px; }
+/* A keycap: a lighter top face on a darker base; pressed, it sinks onto the base */
+.keycap {
+  position: relative; min-width: 60px; height: 60px; padding: 0 16px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: 600 25px 'IBM Plex Sans', system-ui, sans-serif; color: #eef0f2;
+  background: linear-gradient(#3a3d42, #2e3135);
+  border: 1px solid #4a4e55; border-radius: 10px;
+  box-shadow: 0 5px 0 #1a1c1f, 0 6px 10px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(0);
+}
+.keycap.down {
+  transform: translateY(4px);
+  background: linear-gradient(#45494f, #383b40);
+  border-color: var(--accent);
+  box-shadow: 0 1px 0 #1a1c1f, 0 0 0 3px rgba(61, 220, 151, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.keycap.wide { min-width: 120px; font-size: 19px; font-weight: 500; color: #c9cdd2; }
+.keycap.mod { min-width: 132px; }
+.keycap.space { min-width: 170px; font-size: 18px; font-weight: 500; color: #c9cdd2; }
+.keycap .glyph { font-size: 22px; }
+#keycaps .more { font-size: 28px; color: var(--muted); padding: 0 4px; }
+#fast { margin-left: 12px; color: var(--accent); letter-spacing: 0.04em; text-transform: none; font-weight: 600; }
+#keylabel { flex: none; min-height: 34px; font-size: 26px; font-weight: 500; color: #e6e9ec; }
+
+#controls {
+  position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px;
+  background: rgba(20, 22, 25, 0.9); border: 1px solid var(--panel-edge); border-radius: 12px; padding: 8px 12px;
+  font: 500 14px 'IBM Plex Mono', monospace; color: var(--muted);
+}
+#controls button {
+  min-width: 44px; min-height: 36px; background: #26282c; color: var(--text); border: 1px solid #3d4147; border-radius: 8px; font: inherit; cursor: pointer;
+}
+#controls input { width: 360px; }
+#sound { white-space: nowrap; padding: 0 10px; }
+#clock { white-space: nowrap; min-width: 9em; text-align: right; }
+body.recording #controls { display: none; }
+/* A phone: the controls fit the width */
+@media (max-width: 640px) {
+  #controls { left: 8px; right: 8px; transform: none; gap: 6px; padding: 6px 8px; }
+  #controls input { width: auto; flex: 1; min-width: 40px; }
+  #clock { display: none; }
+}

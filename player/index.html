@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intent — being played</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="player.css">
+</head>
+<body>
+<div id="viewport">
+  <div id="stage">
+    <div id="caption"></div>
+
+    <section id="editor" aria-label="The Intent editor">
+      <header id="titlebar"><span id="title"></span><span id="who">you</span></header>
+      <div id="code-view"><pre id="code"></pre></div>
+      <div id="prompt" hidden>
+        <div id="prompt-label"></div>
+        <div id="prompt-input"><span id="prompt-text"></span><span id="caret"></span></div>
+        <div id="prompt-option" hidden></div>
+      </div>
+      <div id="terminal" hidden>
+        <div class="terminal-head">Build · run</div>
+        <pre id="terminal-text"></pre>
+      </div>
+      <footer id="modeline"><span id="mode">NORMAL</span><span id="action"></span></footer>
+    </section>
+
+    <aside id="keys" aria-label="Keys pressed" aria-live="polite">
+      <h2>Keys <span id="fast"></span></h2>
+      <div id="keycaps"></div>
+      <div id="keylabel"></div>
+    </aside>
+
+    <aside id="history" aria-label="Recorded intents">
+      <h2>Intents</h2>
+      <ol id="intents"></ol>
+    </aside>
+  </div>
+</div>
+
+<div id="controls">
+  <button id="play" type="button">Pause</button>
+  <button id="back" type="button" aria-label="Previous step">◀</button>
+  <button id="next" type="button" aria-label="Next step">▶</button>
+  <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Position">
+  <span id="clock"></span>
+  <button id="sound" type="button" hidden>Sound on</button>
+</div>
+<script src="player.js"></script>
+</body>
+</html>
