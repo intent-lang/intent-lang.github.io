@@ -319,35 +319,82 @@
 
   // --- Playback ---
 
+  // The narration plays through Web Audio: the clips are decoded in order
+  // (Play works once the first one is), each scheduled on the audio clock, and
+  // while it sounds that clock is the player's clock too. Picture and voice
+  // can't drift apart, so nothing seeks the sound to catch up (on phones,
+  // audio elements started late and were seeked over and over, and the sound
+  // stuttered and cut off)
   let playing = !recording, origin = 0, position = 0, soundOn = true;
+  let audio = null, audioClock = false, sources = [];
 
-  function now() { return playing ? performance.now() - origin : position; }
+  function clockMs() { return audioClock ? audio.currentTime * 1000 : performance.now(); }
+
+  function now() { return playing ? clockMs() - origin : position; }
+
+  // Follow the audio clock while there is sound to hear, the page's otherwise,
+  // without moving the moment shown
+  function setClock() {
+    const t = now();
+    audioClock = !!audio && audio.state === 'running' && soundOn;
+    origin = clockMs() - t;
+  }
+
+  // A clip at its place on the audio clock, from the moment t on
+  function startClip(clip, t) {
+    if (!clip.buffer || clip.start + clip.buffer.duration * 1000 <= t) return;
+    const source = audio.createBufferSource();
+    source.buffer = clip.buffer;
+    source.connect(audio.destination);
+    source.start(Math.max(audio.currentTime, (clip.start + origin) / 1000), Math.max(0, (t - clip.start) / 1000));
+    sources.push(source);
+  }
+
+  // The clips from the moment t on; none while paused or without sound
+  function sound(t) {
+    for (const source of sources) { try { source.stop(); } catch (e) { /* not started */ } }
+    sources = [];
+    if (!playing || !audioClock) return;
+    for (const clip of clips) startClip(clip, t);
+  }
 
   function seek(t) {
     position = Math.max(0, Math.min(duration, t));
-    origin = performance.now() - position;
+    origin = clockMs() - position;
     draw(position);
     sound(position);
   }
 
-  // The narration clip of the moment t playing at its place, the others
-  // stopped; nothing while paused or recording (the video mixes the clips)
-  function sound(t) {
-    for (const clip of clips) {
-      const at = (t - clip.start) / 1000;
-      const now = playing && !recording && soundOn && at >= 0 && at < clip.ms / 1000;
-      if (!now) { if (!clip.audio.paused) clip.audio.pause(); continue; }
-      if (Math.abs(clip.audio.currentTime - at) > 0.25) clip.audio.currentTime = at;
-      if (clip.audio.paused) clip.audio.play().catch(() => {});
-    }
+  // Decode the clips in order, each scheduled as it comes if it's due; resolves
+  // once the first is ready, or false when this browser can't (it plays silently)
+  function loadNarration() {
+    const Context = window.AudioContext || window.webkitAudioContext;
+    if (!Context) return Promise.resolve(false);
+    // Safari mutes Web Audio with the ring switch unless it's playback
+    if (navigator.audioSession) navigator.audioSession.type = 'playback';
+    audio = new Context();
+    return new Promise(resolve => {
+      (async () => {
+        for (const clip of clips) {
+          try {
+            const response = await fetch(clip.url);
+            if (!response.ok) throw new Error(response.status);
+            clip.buffer = await audio.decodeAudioData(await response.arrayBuffer());
+            if (playing && audioClock) startClip(clip, now());
+          } catch (e) {
+            console.warn('Narration clip ' + clip.url + ': ' + e.message);
+          }
+          resolve(true);
+        }
+      })();
+    });
   }
 
   function loop() {
     if (playing) {
       const t = now();
-      if (t >= duration) { playing = false; position = duration; $('play').textContent = 'Play'; }
+      if (t >= duration) { playing = false; position = duration; $('play').textContent = 'Play'; sound(t); }
       draw(Math.min(t, duration));
-      sound(Math.min(t, duration));
     }
     requestAnimationFrame(loop);
   }
@@ -364,20 +411,25 @@
   function wire() {
     $('play').addEventListener('click', () => {
       if (!playing && position >= duration) position = 0;
+      if (playing) position = now();
       playing = !playing;
-      if (playing) origin = performance.now() - position; else position = now();
+      if (playing) origin = clockMs() - position;
+      // A browser starts the sound only from a click: the clock follows once it runs
+      if (playing && audio && audio.state !== 'running') audio.resume().catch(() => {});
       $('play').textContent = playing ? 'Pause' : 'Play';
+      setClock();
       sound(now());
     });
     $('sound').addEventListener('click', () => {
       soundOn = !soundOn;
       $('sound').textContent = soundOn ? 'Sound on' : 'Sound off';
+      setClock();
       sound(now());
     });
     const jump = dir => {
       const t = now();
+      position = t;
       playing = false; $('play').textContent = 'Play';
-      sound(t);
       const s = stepAt(t);
       const target = dir < 0 ? steps[Math.max(0, s - (t - (steps[s] ? steps[s].start : 0) < 300 ? 1 : 0))] : steps[s + 1];
       seek(target ? (dir < 0 ? target.start : target.apply + 1) : (dir < 0 ? 0 : duration));
@@ -385,6 +437,7 @@
     $('back').addEventListener('click', () => jump(-1));
     $('next').addEventListener('click', () => jump(1));
     $('scrub').addEventListener('input', e => {
+      if (playing) position = now();
       playing = false; $('play').textContent = 'Play';
       seek((Number(e.target.value) / 1000) * duration);
     });
@@ -400,10 +453,19 @@
     .then(async data => {
       timeline = data;
       schedule(await voiceFetch);
-      for (const clip of clips) { clip.audio = new Audio(clip.url); clip.audio.preload = 'auto'; }
-      $('sound').hidden = clips.length === 0;
-      // A browser plays sound only after a click: with narration, it waits for Play
-      if (clips.length && !recording) { playing = false; $('play').textContent = 'Play'; }
+      // With narration, Play waits for its first clip (none while recording: the video mixes them)
+      if (clips.length && !recording) {
+        playing = false;
+        $('play').textContent = 'Loading…';
+        $('play').disabled = true;
+        loadNarration().then(ok => {
+          $('sound').hidden = !ok;
+          // An interruption (a call, another app's sound) stops the audio clock: follow the page's meanwhile
+          if (ok) audio.onstatechange = () => { setClock(); sound(now()); };
+          $('play').textContent = 'Play';
+          $('play').disabled = false;
+        });
+      }
       fit();
       wire();
       await document.fonts.ready;
@@ -414,7 +476,10 @@
         duration, seek: t => { playing = false; seek(t); }, steps: steps.length, ready: true,
         // The narration: each clip's file and when it starts, for the video's sound track
         clips: clips.map(c => ({ url: c.url, start: c.start, ms: c.ms })),
-        sounding: () => clips.findIndex(c => !c.audio.paused),   // the clip playing now, or -1
+        sounding: () => {   // the clip playing now, or -1
+          const t = now();
+          return playing && audioClock ? clips.findIndex(c => t >= c.start && t < c.start + c.ms) : -1;
+        },
         // When each step starts, its prompts open and its change is made (for checks and editing the session)
         timings: steps.map(st => ({ line: st.frame.line, keys: st.frame.keys.join(''), start: st.start, apply: st.apply,
                                      prompts: st.prompts.map(p => ({ label: p.label, typing: p.typing, close: p.close })) })),

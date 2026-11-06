@@ -149,3 +149,4 @@ body.recording #controls { display: none; }
   #controls input { width: auto; flex: 1; min-width: 40px; }
   #clock { display: none; }
 }
+#controls button:disabled { color: var(--muted); cursor: default; }
